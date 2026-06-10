@@ -1,0 +1,13 @@
+TextureRect
+HSlider
+CheckBox
+Label
+HBoxContainer
+AnimationPlayer
+Sprite2D
+TextureButton
+VBoxContainer
+CenterContainer
+AnimatedSprite2D
+Control
+CanvasLayer
