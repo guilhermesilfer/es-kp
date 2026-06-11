@@ -19,3 +19,6 @@ func _process(delta: float) -> void:
 		
 		if current_time <= 0:
 			emit_signal("time_expired")
+			
+			
+	

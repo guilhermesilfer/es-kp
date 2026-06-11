@@ -1,0 +1,34 @@
+[gd_scene format=4 uid="uid://6pphd47k8k2"]
+
+[ext_resource type="Script" uid="uid://dipsq4pnlbamh" path="res://scripts/map_piece.gd" id="1_hmni6"]
+[ext_resource type="Texture2D" uid="uid://cjbvdga7yo12k" path="res://assets/wall.png" id="2_3cdq0"]
+[ext_resource type="Texture2D" uid="uid://d2ba6fcsh2h7k" path="res://assets/floor.png" id="3_xvan7"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fnwn1"]
+texture = ExtResource("2_3cdq0")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c2s07"]
+texture = ExtResource("3_xvan7")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_8xrpf"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_fnwn1")
+sources/1 = SubResource("TileSetAtlasSource_c2s07")
+
+[node name="VerticalStraightCorridor" type="Node2D" unique_id=1206998248]
+script = ExtResource("1_hmni6")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1560516750]
+tile_map_data = PackedByteArray("AAABAAEAAAAAAAAAAAAAAAEAAQAAAAAAAAD//wEAAQAAAAAAAAD+/wEAAAAAAAAAAAD+//7/AAAAAAAAAAD///7/AQAAAAAAAAAAAP7/AQAAAAAAAAABAP7/AAAAAAAAAAD+////AAAAAAAAAAD/////AQAAAAAAAAAAAP//AQAAAAAAAAABAP//AAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAD//wAAAQAAAAAAAAD+/wAAAAAAAAAAAAABAAIAAAAAAAAAAAD+/wIAAAAAAAAAAAABAP3/AAAAAAAAAAD+//3/AAAAAAAAAAD//wIAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAP3/AQAAAAAAAAD///3/AQAAAAAAAAA=")
+tile_set = SubResource("TileSet_8xrpf")
+
+[node name="MarkersEntranceExit" type="Node2D" parent="." unique_id=1475344584]
+
+[node name="North" type="Marker2D" parent="MarkersEntranceExit" unique_id=743204563]
+position = Vector2(0, -40)
+
+[node name="South" type="Marker2D" parent="MarkersEntranceExit" unique_id=1888115844]
+position = Vector2(0, 40)

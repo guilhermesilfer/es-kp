@@ -1,0 +1,40 @@
+[gd_scene format=4 uid="uid://cm84gkuwhec4w"]
+
+[ext_resource type="Script" uid="uid://dipsq4pnlbamh" path="res://scripts/map_piece.gd" id="1_qdx6m"]
+[ext_resource type="Texture2D" uid="uid://cjbvdga7yo12k" path="res://assets/wall.png" id="1_tq4qr"]
+[ext_resource type="Texture2D" uid="uid://d2ba6fcsh2h7k" path="res://assets/floor.png" id="3_unpej"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fnwn1"]
+texture = ExtResource("1_tq4qr")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c2s07"]
+texture = ExtResource("3_unpej")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_8xrpf"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_fnwn1")
+sources/1 = SubResource("TileSetAtlasSource_c2s07")
+
+[node name="CrossCorridor" type="Node2D" unique_id=1206998248]
+script = ExtResource("1_qdx6m")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1560516750]
+tile_map_data = PackedByteArray("AAADAAEAAAAAAAAAAAACAAEAAAAAAAAAAAABAAEAAAAAAAAAAAD+/wEAAAAAAAAAAAD9/wEAAAAAAAAAAAD8/wEAAAAAAAAAAAD8//7/AAAAAAAAAAD9//7/AAAAAAAAAAD+//7/AAAAAAAAAAABAP7/AAAAAAAAAAACAP7/AAAAAAAAAAADAP7/AAAAAAAAAAABAP3/AAAAAAAAAAABAPz/AAAAAAAAAAD+//3/AAAAAAAAAAD+//z/AAAAAAAAAAD+/wIAAAAAAAAAAAABAAIAAAAAAAAAAAABAAMAAAAAAAAAAAD+/wMAAAAAAAAAAAD///z/AQAAAAAAAAAAAPz/AQAAAAAAAAAAAP3/AQAAAAAAAAAAAP7/AQAAAAAAAAD///7/AQAAAAAAAAD///3/AQAAAAAAAAD/////AQAAAAAAAAD+////AQAAAAAAAAD9////AQAAAAAAAAD8////AQAAAAAAAAD8/wAAAQAAAAAAAAD9/wAAAQAAAAAAAAD+/wAAAQAAAAAAAAD//wAAAQAAAAAAAAAAAAAAAQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAACAP//AQAAAAAAAAADAP//AQAAAAAAAAADAAAAAQAAAAAAAAABAP//AQAAAAAAAAAAAP//AQAAAAAAAAD//wIAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAEAAQAAAAAAAAD//wEAAQAAAAAAAAD//wMAAQAAAAAAAAAAAAMAAQAAAAAAAAA=")
+tile_set = SubResource("TileSet_8xrpf")
+
+[node name="MarkersEntranceExit" type="Node2D" parent="." unique_id=1475344584]
+
+[node name="East" type="Marker2D" parent="MarkersEntranceExit" unique_id=743204563]
+position = Vector2(56, 0)
+
+[node name="West" type="Marker2D" parent="MarkersEntranceExit" unique_id=1888115844]
+position = Vector2(-56, 0)
+
+[node name="North" type="Marker2D" parent="MarkersEntranceExit" unique_id=2044499344]
+position = Vector2(0, -56)
+
+[node name="South" type="Marker2D" parent="MarkersEntranceExit" unique_id=178103341]
+position = Vector2(0, 56)

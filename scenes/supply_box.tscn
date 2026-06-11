@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dtg0ddi8fj4iw"]
+
+[ext_resource type="Texture2D" uid="uid://c4ql41efijs2i" path="res://assets/supply_box.png" id="1_dq6pa"]
+[ext_resource type="Script" uid="uid://bw7dm31bd5s64" path="res://scripts/supply_box.gd" id="1_v7r57"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_v7r57"]
+size = Vector2(16, 16)
+
+[node name="SupplyBox" type="Area2D" unique_id=168176502]
+collision_layer = 2
+script = ExtResource("1_v7r57")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=976208360]
+texture = ExtResource("1_dq6pa")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=704118828]
+shape = SubResource("RectangleShape2D_v7r57")

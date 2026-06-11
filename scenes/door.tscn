@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://chmab4krtk4ve"]
+
+[ext_resource type="Script" uid="uid://dfltmnoa2jyt7" path="res://scripts/door.gd" id="1_uvdjg"]
+[ext_resource type="Texture2D" uid="uid://dbdlc6rsgnlqs" path="res://assets/door.png" id="2_83dcw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_la1wf"]
+size = Vector2(32, 4)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_18pbm"]
+size = Vector2(36, 28)
+
+[node name="Door" type="StaticBody2D" unique_id=1584907342]
+script = ExtResource("1_uvdjg")
+
+[node name="Node2D" type="Node2D" parent="." unique_id=1544612565]
+
+[node name="LeftDoor" type="Sprite2D" parent="Node2D" unique_id=1523849020]
+position = Vector2(-8, 0)
+texture = ExtResource("2_83dcw")
+
+[node name="RightDoor" type="Sprite2D" parent="Node2D" unique_id=1028648731]
+position = Vector2(8, 0)
+texture = ExtResource("2_83dcw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1125435205]
+shape = SubResource("RectangleShape2D_la1wf")
+
+[node name="InteractionArea" type="Area2D" parent="." unique_id=460896701]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea" unique_id=2147443429]
+shape = SubResource("RectangleShape2D_18pbm")
+debug_color = Color(0.93164265, 2.627939e-05, 0.6539744, 0.41960785)

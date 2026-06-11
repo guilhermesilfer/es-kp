@@ -1,24 +1,29 @@
 [gd_scene format=4 uid="uid://d2t614fwtop7b"]
 
 [ext_resource type="Texture2D" uid="uid://cjbvdga7yo12k" path="res://assets/wall.png" id="1_88gup"]
-[ext_resource type="Script" uid="uid://dipsq4pnlbamh" path="res://scripts/room.gd" id="1_ffxv4"]
+[ext_resource type="Script" uid="uid://dipsq4pnlbamh" path="res://scripts/map_piece.gd" id="1_ffxv4"]
+[ext_resource type="Texture2D" uid="uid://d2ba6fcsh2h7k" path="res://assets/floor.png" id="3_85yof"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bisa2"]
 texture = ExtResource("1_88gup")
 0:0/0 = 0
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_14vil"]
+texture = ExtResource("3_85yof")
+0:0/0 = 0
+
 [sub_resource type="TileSet" id="TileSet_4o3f6"]
 physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_bisa2")
+sources/1 = SubResource("TileSetAtlasSource_14vil")
 
 [node name="Room" type="Node2D" unique_id=1191324617]
 script = ExtResource("1_ffxv4")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=836220132]
-tile_map_data = PackedByteArray("AAADAAEAAAAAAAAAAAADAAIAAAAAAAAAAAADAAMAAAAAAAAAAAACAAMAAAAAAAAAAAABAAMAAAAAAAAAAAD8/wEAAAAAAAAAAAD8/wIAAAAAAAAAAAD8/wMAAAAAAAAAAAD9/wMAAAAAAAAAAAD+/wMAAAAAAAAAAAD+//z/AAAAAAAAAAD9//z/AAAAAAAAAAD8//z/AAAAAAAAAAD8//3/AAAAAAAAAAD8//7/AAAAAAAAAAABAPz/AAAAAAAAAAACAPz/AAAAAAAAAAADAPz/AAAAAAAAAAADAP3/AAAAAAAAAAADAP7/AAAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAADAAEAAAAAAAAAAAADAAIAAAAAAAAAAAADAAMAAAAAAAAAAAACAAMAAAAAAAAAAAABAAMAAAAAAAAAAAD8/wEAAAAAAAAAAAD8/wIAAAAAAAAAAAD8/wMAAAAAAAAAAAD9/wMAAAAAAAAAAAD+/wMAAAAAAAAAAAD+//z/AAAAAAAAAAD9//z/AAAAAAAAAAD8//z/AAAAAAAAAAD8//3/AAAAAAAAAAD8//7/AAAAAAAAAAABAPz/AAAAAAAAAAACAPz/AAAAAAAAAAADAPz/AAAAAAAAAAADAP3/AAAAAAAAAAADAP7/AAAAAAAAAAD8/wAAAQAAAAAAAAD8////AQAAAAAAAAD///z/AQAAAAAAAAAAAPz/AQAAAAAAAAADAP//AQAAAAAAAAADAAAAAQAAAAAAAAAAAAMAAQAAAAAAAAD//wMAAQAAAAAAAAD9//3/AQAAAAAAAAD9//7/AQAAAAAAAAD9////AQAAAAAAAAD9/wAAAQAAAAAAAAD9/wEAAQAAAAAAAAD9/wIAAQAAAAAAAAD+//3/AQAAAAAAAAD+//7/AQAAAAAAAAD+////AQAAAAAAAAD+/wAAAQAAAAAAAAD+/wEAAQAAAAAAAAD+/wIAAQAAAAAAAAD///3/AQAAAAAAAAD///7/AQAAAAAAAAD/////AQAAAAAAAAD//wAAAQAAAAAAAAD//wEAAQAAAAAAAAD//wIAAQAAAAAAAAAAAP3/AQAAAAAAAAAAAP7/AQAAAAAAAAAAAP//AQAAAAAAAAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAAAAAABAP3/AQAAAAAAAAABAP7/AQAAAAAAAAABAP//AQAAAAAAAAABAAAAAQAAAAAAAAABAAEAAQAAAAAAAAABAAIAAQAAAAAAAAACAP3/AQAAAAAAAAACAP7/AQAAAAAAAAACAP//AQAAAAAAAAACAAAAAQAAAAAAAAACAAEAAQAAAAAAAAACAAIAAQAAAAAAAAA=")
 tile_set = SubResource("TileSet_4o3f6")
-collision_visibility_mode = 1
 
 [node name="MarkersEntranceExit" type="Node2D" parent="." unique_id=1360458076]
 
