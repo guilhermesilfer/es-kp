@@ -1,0 +1,28 @@
+[gd_scene format=3 uid="uid://6un4yeeg0r51"]
+
+[ext_resource type="Script" uid="uid://d1d13qqr8unnr" path="res://scripts/hud.gd" id="1_37p78"]
+
+[node name="Hud" type="CanvasLayer" unique_id=1568792725]
+script = ExtResource("1_37p78")
+
+[node name="Control" type="Control" parent="." unique_id=899097849]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TimerBar" type="TextureProgressBar" parent="Control" unique_id=1714791287]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 10.0
+offset_top = 68.0
+offset_right = 146.1653
+offset_bottom = 80.0
+grow_vertical = 2
+rotation = -1.5707964
+value = 60.0
+fill_mode = 3

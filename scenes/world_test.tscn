@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://tt8dofoicejl"]
+
+[ext_resource type="Script" uid="uid://coc5ju1sja2n1" path="res://scripts/world_test.gd" id="1_63fu1"]
+[ext_resource type="PackedScene" uid="uid://d2t614fwtop7b" path="res://scenes/room.tscn" id="1_puv4i"]
+[ext_resource type="PackedScene" uid="uid://dheegcut70sc7" path="res://scenes/player.tscn" id="2_1moov"]
+[ext_resource type="PackedScene" uid="uid://6un4yeeg0r51" path="res://scenes/hud.tscn" id="4_ob026"]
+
+[node name="WorldTest" type="Node2D" unique_id=1437824967]
+script = ExtResource("1_63fu1")
+
+[node name="Room" parent="." unique_id=1191324617 instance=ExtResource("1_puv4i")]
+
+[node name="Player" parent="." unique_id=2110758955 instance=ExtResource("2_1moov")]
+position = Vector2(0, 1)
+
+[node name="Hud" parent="." unique_id=1568792725 instance=ExtResource("4_ob026")]

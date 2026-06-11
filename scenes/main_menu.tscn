@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b6slg2unlgnwx"]
 
 [ext_resource type="Texture2D" uid="uid://dl5lobb0fwh7v" path="res://assets/main_menu_background_spritesheet.png" id="1_l6cm7"]
-[ext_resource type="Script" uid="uid://bexthukdax860" path="res://scenes/main_menu.gd" id="1_tbmy8"]
+[ext_resource type="Script" uid="uid://bexthukdax860" path="res://scripts/main_menu.gd" id="1_tbmy8"]
 [ext_resource type="Texture2D" uid="uid://dtd1vunyak12m" path="res://assets/play_normal.png" id="2_bqqt6"]
 [ext_resource type="Texture2D" uid="uid://dx2i472ce7ehh" path="res://assets/play_hover.png" id="3_wu84c"]
 [ext_resource type="Texture2D" uid="uid://d1p6if0q7grw" path="res://assets/options_normal.png" id="4_oa1go"]
@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://ghfgnwhftq7s" path="res://assets/quit_normal.png" id="6_jk1qb"]
 [ext_resource type="Texture2D" uid="uid://dbyamcqbwmhqu" path="res://assets/quit.hover.png" id="7_5dd4i"]
 [ext_resource type="Texture2D" uid="uid://cb536t4sovsi2" path="res://assets/options_menu.png" id="9_jk1qb"]
+[ext_resource type="Texture2D" uid="uid://dmem0xmlcilri" path="res://assets/close_button.png" id="10_5dd4i"]
 
 [sub_resource type="Animation" id="Animation_ekxnf"]
 length = 12.733334
@@ -67,7 +68,7 @@ hframes = 4
 libraries/ = SubResource("AnimationLibrary_wu84c")
 autoplay = &"RESET"
 
-[node name="CenterContainer" type="CenterContainer" parent="." unique_id=414972894]
+[node name="MainMenuButtons" type="CenterContainer" parent="." unique_id=414972894]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,28 +76,29 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=1250589226]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenuButtons" unique_id=1250589226]
 layout_mode = 2
 
-[node name="PlayButton" type="TextureButton" parent="CenterContainer/VBoxContainer" unique_id=537644328]
+[node name="PlayButton" type="TextureButton" parent="MainMenuButtons/VBoxContainer" unique_id=537644328]
 layout_mode = 2
 texture_normal = ExtResource("2_bqqt6")
 texture_pressed = ExtResource("3_wu84c")
 texture_hover = ExtResource("3_wu84c")
 
-[node name="OptionsButton" type="TextureButton" parent="CenterContainer/VBoxContainer" unique_id=1062551]
+[node name="OptionsButton" type="TextureButton" parent="MainMenuButtons/VBoxContainer" unique_id=1062551]
 layout_mode = 2
 texture_normal = ExtResource("4_oa1go")
 texture_pressed = ExtResource("5_tbmy8")
 texture_hover = ExtResource("5_tbmy8")
 
-[node name="QuitButton" type="TextureButton" parent="CenterContainer/VBoxContainer" unique_id=1239906419]
+[node name="QuitButton" type="TextureButton" parent="MainMenuButtons/VBoxContainer" unique_id=1239906419]
 layout_mode = 2
 texture_normal = ExtResource("6_jk1qb")
 texture_pressed = ExtResource("7_5dd4i")
 texture_hover = ExtResource("7_5dd4i")
 
 [node name="OptionsMenu" type="TextureRect" parent="." unique_id=868959642]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -115,9 +117,9 @@ texture = ExtResource("9_jk1qb")
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.7111111
-anchor_top = 0.21666667
+anchor_top = 0.24444444
 anchor_right = 0.9777778
-anchor_bottom = 0.6166667
+anchor_bottom = 0.64444447
 grow_horizontal = 0
 grow_vertical = 2
 size_flags_horizontal = 4
@@ -128,26 +130,29 @@ metadata/_edit_use_anchors_ = true
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.055555556
-anchor_top = 0.75
+anchor_top = 0.6666667
 anchor_right = 0.9333334
-anchor_bottom = 1.0166667
+anchor_bottom = 0.93333334
 grow_horizontal = 2
 grow_vertical = 0
 metadata/_edit_use_anchors_ = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="OptionsMenu" unique_id=1175021662]
-layout_mode = 0
-offset_left = 97.0
-offset_top = 37.0
-offset_right = 223.0
-offset_bottom = 143.0
+[node name="CloseButton" type="TextureButton" parent="OptionsMenu" unique_id=1215051548]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.989
+anchor_right = 0.989
+offset_left = -7.010002
+offset_top = -7.0
+offset_right = 6.989998
+offset_bottom = 7.0
+grow_horizontal = 0
+texture_normal = ExtResource("10_5dd4i")
 
-[node name="CloseButton" type="TextureButton" parent="OptionsMenu/VBoxContainer" unique_id=1215051548]
-layout_mode = 2
-texture_normal = ExtResource("6_jk1qb")
-texture_pressed = ExtResource("7_5dd4i")
-texture_hover = ExtResource("7_5dd4i")
-
-[connection signal="pressed" from="CenterContainer/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/OptionsButton" to="." method="_on_options_button_pressed"]
-[connection signal="pressed" from="CenterContainer/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="MainMenuButtons/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="MainMenuButtons/VBoxContainer/OptionsButton" to="." method="_on_options_button_pressed"]
+[connection signal="pressed" from="MainMenuButtons/VBoxContainer/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="OptionsMenu/CheckBox" to="." method="_on_check_box_pressed"]
+[connection signal="toggled" from="OptionsMenu/CheckBox" to="." method="_on_check_box_toggled"]
+[connection signal="value_changed" from="OptionsMenu/HSlider" to="." method="_on_h_slider_value_changed"]
+[connection signal="pressed" from="OptionsMenu/CloseButton" to="." method="_on_close_button_pressed"]

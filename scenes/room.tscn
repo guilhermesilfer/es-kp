@@ -1,0 +1,37 @@
+[gd_scene format=4 uid="uid://d2t614fwtop7b"]
+
+[ext_resource type="Texture2D" uid="uid://cjbvdga7yo12k" path="res://assets/wall.png" id="1_88gup"]
+[ext_resource type="Script" uid="uid://dipsq4pnlbamh" path="res://scripts/room.gd" id="1_ffxv4"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bisa2"]
+texture = ExtResource("1_88gup")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSet" id="TileSet_4o3f6"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_bisa2")
+
+[node name="Room" type="Node2D" unique_id=1191324617]
+script = ExtResource("1_ffxv4")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=836220132]
+tile_map_data = PackedByteArray("AAADAAEAAAAAAAAAAAADAAIAAAAAAAAAAAADAAMAAAAAAAAAAAACAAMAAAAAAAAAAAABAAMAAAAAAAAAAAD8/wEAAAAAAAAAAAD8/wIAAAAAAAAAAAD8/wMAAAAAAAAAAAD9/wMAAAAAAAAAAAD+/wMAAAAAAAAAAAD+//z/AAAAAAAAAAD9//z/AAAAAAAAAAD8//z/AAAAAAAAAAD8//3/AAAAAAAAAAD8//7/AAAAAAAAAAABAPz/AAAAAAAAAAACAPz/AAAAAAAAAAADAPz/AAAAAAAAAAADAP3/AAAAAAAAAAADAP7/AAAAAAAAAAA=")
+tile_set = SubResource("TileSet_4o3f6")
+collision_visibility_mode = 1
+
+[node name="MarkersEntranceExit" type="Node2D" parent="." unique_id=1360458076]
+
+[node name="North" type="Marker2D" parent="MarkersEntranceExit" unique_id=531807088]
+position = Vector2(0, -56)
+
+[node name="South" type="Marker2D" parent="MarkersEntranceExit" unique_id=2055266004]
+position = Vector2(0, 56)
+
+[node name="East" type="Marker2D" parent="MarkersEntranceExit" unique_id=1505790868]
+position = Vector2(56, 0)
+
+[node name="West" type="Marker2D" parent="MarkersEntranceExit" unique_id=389358981]
+position = Vector2(-56, 0)
+
+[node name="Spawners" type="Node2D" parent="." unique_id=1170872986]
