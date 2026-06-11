@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://d1o0jdhnvolfo"]
+
+[ext_resource type="Script" uid="uid://b402r30clrvg6" path="res://scripts/guard.gd" id="1_ci2qi"]
+[ext_resource type="Texture2D" uid="uid://5pnh7lkks46u" path="res://assets/guard.png" id="2_k0dx2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ci2qi"]
+radius = 8.0
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_k0dx2"]
+points = PackedVector2Array(-48.5, 0, 30, -22, 30, 22)
+
+[node name="Guard" type="CharacterBody2D" unique_id=1739204956]
+collision_layer = 2
+script = ExtResource("1_ci2qi")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=748274218]
+texture = ExtResource("2_k0dx2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=769074651]
+shape = SubResource("CircleShape2D_ci2qi")
+
+[node name="FloorChecker" type="RayCast2D" parent="." unique_id=1800071072]
+target_position = Vector2(19, 43)
+
+[node name="WallChecker" type="RayCast2D" parent="." unique_id=14894233]
+target_position = Vector2(37, 0)
+
+[node name="VisionArea" type="Area2D" parent="." unique_id=1788486985]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VisionArea" unique_id=1260586385]
+position = Vector2(48.5, 0)
+shape = SubResource("ConvexPolygonShape2D_k0dx2")

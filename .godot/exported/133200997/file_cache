@@ -1,0 +1,14 @@
+res://scenes/cross_corridor.tscn::3b799220d653b63f82752af3da98392e::1781202468::res://.godot/exported/133200997/export-19d97b3dbf3e63851cbb9e4f2e42f7bd-cross_corridor.scn
+res://scenes/door.tscn::bde38ad6d2b2a5d8774323183fedc2ec::1781203143::res://.godot/exported/133200997/export-3370694a3d56567dea5c3bf0058a536d-door.scn
+res://scenes/dropped_item.tscn::f8137d7ff5c19b5e49bf3ba179cb53d8::1781206492::res://.godot/exported/133200997/export-cc74ac12e6e2c82b054c79b919f0a500-dropped_item.scn
+res://scenes/game.tscn::31a26ff324ce202ba25255542b4a10fe::1781134821::res://.godot/exported/133200997/export-c2a7af834e91ff64325daddf58e45dc0-game.scn
+res://scenes/guard.tscn::63a08f9c0d78791c715ab03bc1937d47::1781216686::res://.godot/exported/133200997/export-c852262313283469cca74c0906852806-guard.scn
+res://scenes/horizontal_straight_corridor.tscn::e88684f23a209c83a8629a4c7b4ca9df::1781201163::res://.godot/exported/133200997/export-26853a6de4ed073e9fe6780e0d47faa6-horizontal_straight_corridor.scn
+res://scenes/hud.tscn::5217bf06cd0547d039bd62c6655d0eee::1781200015::res://.godot/exported/133200997/export-38bf74ff262409a94a41206b2b776d33-hud.scn
+res://scenes/main_menu.tscn::d4ae1c8865282a05a0fd7411e7a7ee3c::1781137221::res://.godot/exported/133200997/export-ea5c6ad4629af728dc514cefde332394-main_menu.scn
+res://scenes/player.tscn::c4b11ec493e86ce0f9dee4b78c1f26e3::1781200015::res://.godot/exported/133200997/export-234fb6894ec6226e856ab7f825500d3d-player.scn
+res://scenes/room.tscn::b3ce62803b99072bf66979feab375070::1781202700::res://.godot/exported/133200997/export-9d65d9b5d82f26ef2a89ece08ca936e6-room.scn
+res://scenes/supply_box.tscn::fe65d148c112274dacdcfb0dd520a52a::1781200015::res://.godot/exported/133200997/export-6297af03285880191b189a5364db7f1b-supply_box.scn
+res://scenes/vertical_straight_corridor.tscn::1a93fd5e290fb4a8b3d73ec92aa8f10a::1781205882::res://.godot/exported/133200997/export-d35a5f21c15545f03764189abe5ffac2-vertical_straight_corridor.scn
+res://scenes/wall.tscn::8ad9c98baa9f227a3c92b445e573491d::1781141987::res://.godot/exported/133200997/export-07690686bd1a72f71ae2b53bb79af276-wall.scn
+res://scenes/world_test.tscn::85c1ea11b811b4a95a7af8a7d13f02f6::1781217100::res://.godot/exported/133200997/export-f04099cbf1acc03a0f68fc1f9f5d73b1-world_test.scn
