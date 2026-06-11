@@ -1,8 +1,9 @@
 extends CharacterBody2D
 
-@onready var sprite: Sprite2D = $Sprite2D 
+@onready var sprite: Sprite2D = $Sprite2D
 
-@export var speed: float = 100.0 
+@export var speed: float = 100.0
+@export var dropped_item_scene: PackedScene = preload("res://scenes/dropped_item.tscn")
 
 # --- CONFIGURAÇÃO DA SPRITESHEET ---
 @export var player_spritesheet: Texture2D = preload("res://assets/protagonist_spritesheet.png")
@@ -24,6 +25,9 @@ var max_items: int = 3
 
 # --- CONTROLE DE SELEÇÃO DE ITEM ---
 var active_slot_index: int = 0 # Guarda qual slot (0, 1 ou 2) está na mão do jogador
+
+func _ready() -> void:
+	update_player_visual()
 
 func _physics_process(_delta: float) -> void:
 	# Movimentação
@@ -99,6 +103,24 @@ func update_player_visual() -> void:
 	atlas_rect.filter_clip = true # Evita vazamento de pixels vizinhos
 	
 	sprite.texture = atlas_rect
+
+# --- DROP ---
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		_drop_active_item()
+
+func _drop_active_item() -> void:
+	if active_slot_index >= inventory.size():
+		return
+	var item = inventory[active_slot_index]
+	inventory.remove_at(active_slot_index)
+	active_slot_index = clamp(active_slot_index, 0, max(0, inventory.size() - 1))
+	update_player_visual()
+	var dropped = dropped_item_scene.instantiate()
+	dropped.item_name = item
+	get_parent().add_child(dropped)
+	dropped.global_position = global_position
+	print("Dropped: ", item)
 
 # --- COLETA ---
 func add_item(item_name: String) -> bool:

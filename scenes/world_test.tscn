@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dheegcut70sc7" path="res://scenes/player.tscn" id="2_1moov"]
 [ext_resource type="Script" uid="uid://b36rvjsw4vue2" path="res://scripts/map_generator.gd" id="4_63fu1"]
 [ext_resource type="PackedScene" uid="uid://6un4yeeg0r51" path="res://scenes/hud.tscn" id="4_ob026"]
-[ext_resource type="PackedScene" uid="uid://dtg0ddi8fj4iw" path="res://scenes/supply_box.tscn" id="5_ob026"]
+[ext_resource type="PackedScene" uid="uid://d1o0jdhnvolfo" path="res://scenes/guard.tscn" id="6_i6uhy"]
 
 [node name="WorldTest" type="Node2D" unique_id=1437824967]
 script = ExtResource("1_63fu1")
@@ -15,17 +15,6 @@ script = ExtResource("1_63fu1")
 script = ExtResource("4_63fu1")
 
 [node name="Player" parent="." unique_id=2110758955 instance=ExtResource("2_1moov")]
-position = Vector2(0, 1)
-speed = 100.0
 
-[node name="SupplyBox" parent="." unique_id=168176502 instance=ExtResource("5_ob026")]
-position = Vector2(-42, -7)
-
-[node name="SupplyBox2" parent="." unique_id=527855379 instance=ExtResource("5_ob026")]
-position = Vector2(-23, -12)
-
-[node name="SupplyBox3" parent="." unique_id=1945649902 instance=ExtResource("5_ob026")]
-position = Vector2(27, -12)
-
-[node name="SupplyBox4" parent="." unique_id=1761576267 instance=ExtResource("5_ob026")]
-position = Vector2(35, 8)
+[node name="Guard" parent="." unique_id=1739204956 instance=ExtResource("6_i6uhy")]
+position = Vector2(28, -3)

@@ -1,13 +1,13 @@
 extends Area2D
 
 # Lista de itens possíveis baseada no seu GDD
-var possible_items: Array[String] = ["Pistola Silenciada", "Flashbang", "Chave Amarela", "Chave Verde", "Chave Azul", "Chave de Fenda"]
+var possible_items: Array[String] = ["Pistola Silenciada", "Flashbang", "Chave de Fenda"]
 var contained_item: String
+var forced_item: String = ""
 var player_inside: CharacterBody2D = null
 
 func _ready() -> void:
-	# Escolhe um item aleatório da lista quando a caixa nasce no mapa
-	contained_item = possible_items[randi() % possible_items.size()]
+	contained_item = forced_item if forced_item != "" else possible_items[randi() % possible_items.size()]
 	
 	# Conecta os sinais da própria Area2D para saber quando o player entra/sai de perto
 	body_entered.connect(_on_body_entered)

@@ -28,13 +28,13 @@ tile_set = SubResource("TileSet_8xrpf")
 [node name="MarkersEntranceExit" type="Node2D" parent="." unique_id=1475344584]
 
 [node name="East" type="Marker2D" parent="MarkersEntranceExit" unique_id=743204563]
-position = Vector2(56, 0)
+position = Vector2(64, 0)
 
 [node name="West" type="Marker2D" parent="MarkersEntranceExit" unique_id=1888115844]
-position = Vector2(-56, 0)
+position = Vector2(-64, 0)
 
 [node name="North" type="Marker2D" parent="MarkersEntranceExit" unique_id=2044499344]
-position = Vector2(0, -56)
+position = Vector2(0, -64)
 
 [node name="South" type="Marker2D" parent="MarkersEntranceExit" unique_id=178103341]
-position = Vector2(0, 56)
+position = Vector2(0, 64)

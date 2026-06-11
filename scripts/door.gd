@@ -30,7 +30,9 @@ func try_open_door() -> void:
 			return
 			
 		if player_in_range.inventory.has(required_key):
-			print("Porta destrancada com sucesso!")
+			player_in_range.inventory.erase(required_key)
+			player_in_range.update_player_visual()
+			print("Porta destrancada! Chave consumida.")
 			open()
 		else:
 			print("Trancada! Traga a: ", required_key)
