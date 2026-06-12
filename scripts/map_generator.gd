@@ -6,13 +6,20 @@ extends Node2D
 @export var cross_corridor_scene: PackedScene = preload("res://scenes/cross_corridor.tscn")
 @export var door_scene: PackedScene = preload("res://scenes/door.tscn")
 @export var supply_box_scene: PackedScene = preload("res://scenes/supply_box.tscn")
-
-# Cena do Guarda Top-Down
 @export var guard_scene: PackedScene = preload("res://scenes/guard.tscn")
 
-@export var map_size: int = 10
-@export var total_pieces: int = 40
+@export var map_size: int = 30
 @export var cell_size: Vector2 = Vector2(128, 128)
+
+# Each stage gets rows_per_stage rows of territory (computed dynamically).
+# Between every pair of adjacent stages there are TRANSITION_HEIGHT corridor cells.
+# Total Y needed = TOTAL_STAGES * rows_per_stage + (TOTAL_STAGES-1) * TRANSITION_HEIGHT <= map_size
+const TOTAL_STAGES: int = 6
+const TRANSITION_HEIGHT: int = 3
+@export var rooms_per_stage: int = 9
+
+# Must match item_atlas_positions in player.gd and world_test.gd.
+const STAGE_KEYS: Array[String] = ["Chave Verde", "Chave Amarela", "Chave Azul", "Chave de Fenda"]
 
 const DIRECTIONS: Dictionary = {
 	"North": Vector2(0, -1),
@@ -20,103 +27,122 @@ const DIRECTIONS: Dictionary = {
 	"East":  Vector2(1,  0),
 	"West":  Vector2(-1, 0),
 }
-const OPPOSITE_DIR: Dictionary = {
-	"North": "South", "South": "North", "East": "West", "West": "East"
-}
-# All 4 tiles of an opening — filling these closes the passage entirely.
 const OPENING_TILES: Dictionary = {
 	"North": [Vector2i(-2,-4), Vector2i(-1,-4), Vector2i(0,-4), Vector2i(1,-4)],
 	"South": [Vector2i(-2, 3), Vector2i(-1, 3), Vector2i(0, 3), Vector2i(1, 3)],
 	"East":  [Vector2i(3,-2),  Vector2i(3,-1),  Vector2i(3, 0), Vector2i(3, 1)],
 	"West":  [Vector2i(-4,-2), Vector2i(-4,-1), Vector2i(-4, 0),Vector2i(-4, 1)],
 }
-# Only the two outer flanking tiles — filling these forces the player through the
-# center 32 px door slot instead of walking around the door.
-const DOOR_OUTER_TILES: Dictionary = {
-	"North": [Vector2i(-2,-4), Vector2i(1,-4)],
-	"South": [Vector2i(-2, 3), Vector2i(1, 3)],
-	"East":  [Vector2i(3,-2),  Vector2i(3, 1)],
-	"West":  [Vector2i(-4,-2), Vector2i(-4, 1)],
-}
-const KEY_COLORS: Array = [
-	{"key": "Chave Amarela", "color": Color.YELLOW},
-	{"key": "Chave Verde",   "color": Color.GREEN},
-	{"key": "Chave Azul",    "color": Color.BLUE},
-]
 
 var grid_map: Dictionary  = {}
 var grid_type: Dictionary = {}
-var _stage_of: Dictionary = {}   # Vector2 → int  1‥4
-var _key_rooms: Array[Vector2] = []
+var _stage_of: Dictionary = {}
+# Southernmost cell of each inter-stage transition corridor (door goes here).
+var _stage_transitions: Array[Vector2] = []
+var _exit_room_coords: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
 	randomize()
 	_generate()
 
-const MIN_MAIN_PATH: int = 8  # each of 4 stages gets ≥2 cells → guaranteed 3 doors
-
 func _generate() -> void:
-	# Plan layout first (no nodes spawned), retry until path is long enough.
-	var start: Vector2
-	var exit_coords: Vector2
-	var main_path: Array[Vector2]
-	var positions: Array[Vector2]
-	var attempt := 0
-	while true:
-		attempt += 1
-		grid_map.clear()
-		grid_type.clear()
-		_stage_of.clear()
-		_key_rooms.clear()
+	grid_map.clear()
+	grid_type.clear()
+	_stage_of.clear()
+	_stage_transitions.clear()
 
-		positions  = _random_walk()
-		start      = positions[0]
-		_register_grid(positions)          # fills grid_map keys only (values stay null)
+	var result = _build_layered_layout()
+	var start: Vector2 = result[0]
 
-		exit_coords = _find_exit(start)
-		main_path   = _bfs_path(start, exit_coords)
-
-		if main_path.size() >= MIN_MAIN_PATH:
-			break
-		if attempt >= 30:
-			push_error("MapGenerator: no valid layout after 30 attempts")
-			return
-
-	# Layout is valid — now spawn all nodes.
 	_spawn_pieces()
-	_assign_stages(main_path)
-	_seal_inter_stage_walls(main_path)   # must run before boundary seal
 	_seal_boundary_openings()
-	_place_stage_locks(main_path)
+	_spawn_stage_doors()
+	_spawn_exit_trigger()
 	_spawn_exploration_supply_boxes()
-	
-	# PASSO NOVO: Injeta os guardas nas salas do labirinto
 	_spawn_guards(start)
-	
 	_place_player(start)
 
-	print("Map OK | Start:%s  Exit:%s  Path:%d  Attempt:%d" % [start, exit_coords, main_path.size(), attempt])
+	print("Map OK | Start: %s | Exit: %s" % [start, _exit_room_coords])
 
-# ── Random walk ───────────────────────────────────────────────────────────────
+# ── Layout planner ────────────────────────────────────────────────────────────
 
-func _random_walk() -> Array[Vector2]:
-	var center = Vector2(floor(map_size / 2.0), floor(map_size / 2.0))
-	var positions: Array[Vector2] = [center]
-	var current = center
-	while positions.size() < total_pieces:
-		var dirs = [Vector2(0,-1), Vector2(0,1), Vector2(-1,0), Vector2(1,0)]
-		var next = current + dirs[randi() % 4]
-		if next.x >= 0 and next.x < map_size and next.y >= 0 and next.y < map_size:
-			if not positions.has(next):
-				positions.append(next)
-			current = next
-	return positions
+func _build_layered_layout() -> Array[Vector2]:
+	# rows_per_stage: how many Y rows each stage's room territory occupies.
+	# Derived so all stages + all transition corridors fit inside map_size.
+	var rows_per_stage: int = max(2, int(floor(
+		float(map_size - (TOTAL_STAGES - 1) * TRANSITION_HEIGHT) / float(TOTAL_STAGES)
+	)))
+
+	var global_start_pos := Vector2.ZERO
+	# X column that the top transition cell of the previous stage sits at.
+	# The next stage starts directly below it.
+	var last_transition_top := Vector2.ZERO
+
+	for stage in range(1, TOTAL_STAGES + 1):
+		# Stage Y territory (strict – random walk must stay here).
+		# Stage 1 is at the bottom (highest Y values); stage N at the top.
+		# Each stage's slot = rows_per_stage room rows + TRANSITION_HEIGHT corridor rows above it.
+		var stage_bottom_y: int = (map_size - 1) - (stage - 1) * (rows_per_stage + TRANSITION_HEIGHT)
+		var stage_top_y: int    = stage_bottom_y - (rows_per_stage - 1)
+
+		# Entry X: align with the column that came out of the previous transition.
+		var start_x: int = randi() % map_size if stage == 1 else int(last_transition_top.x)
+		var layer_start := Vector2(start_x, stage_bottom_y)
+
+		if stage == 1:
+			global_start_pos = layer_start
+
+		# ── Random walk strictly within [stage_top_y, stage_bottom_y] ──────
+		var current_pos := layer_start
+		var stage_positions: Array[Vector2] = [current_pos]
+		_stage_of[current_pos] = stage
+		grid_map[current_pos]  = null
+
+		var attempts := 0
+		while stage_positions.size() < rooms_per_stage and attempts < 20000:
+			attempts += 1
+			var dirs := [Vector2(0,-1), Vector2(0,1), Vector2(-1,0), Vector2(1,0)]
+			var nxt: Vector2 = current_pos + dirs[randi() % 4]
+			if nxt.x >= 0 and nxt.x < map_size and nxt.y >= stage_top_y and nxt.y <= stage_bottom_y:
+				if not stage_positions.has(nxt):
+					stage_positions.append(nxt)
+					_stage_of[nxt] = stage
+					grid_map[nxt]  = null
+				current_pos = nxt
+
+		# ── Force a straight vertical path from the walker's last position
+		#    up to stage_top_y so the exit is always at the stage's top row. ──
+		var stage_exit := current_pos
+		while int(stage_exit.y) > stage_top_y:
+			var step: Vector2 = stage_exit + Vector2(0, -1)
+			if not grid_map.has(step):
+				grid_map[step]   = null
+				_stage_of[step]  = stage
+			stage_exit = step
+		# stage_exit is now at (some_x, stage_top_y)
+
+		if stage < TOTAL_STAGES:
+			# ── Build the 3-cell transition corridor above stage_exit ──────
+			# These cells are outside stage territory (in the gap between stages).
+			# Cell order going north: T1 (southernmost), T2, T3 (northernmost).
+			var prev := stage_exit
+			for i in range(TRANSITION_HEIGHT):
+				var tc: Vector2 = prev + Vector2(0, -1)
+				grid_map[tc]  = null
+				_stage_of[tc] = stage
+				if i == 0:
+					# Door goes on the southernmost transition cell (right above the stage).
+					_stage_transitions.append(tc)
+				prev = tc
+			last_transition_top = prev
+			# The next stage starts at (last_transition_top.x, last_transition_top.y - 1),
+			# which equals that stage's computed stage_bottom_y – they connect naturally.
+		else:
+			_exit_room_coords = stage_exit
+
+	return [global_start_pos, _exit_room_coords]
 
 # ── Grid & pieces ─────────────────────────────────────────────────────────────
-
-func _register_grid(positions: Array[Vector2]) -> void:
-	for coords in positions:
-		grid_map[coords] = null
 
 func _connections_at(coords: Vector2) -> Array[String]:
 	var result: Array[String] = []
@@ -137,9 +163,9 @@ func _pick_scene(connections: Array[String]) -> PackedScene:
 
 func _spawn_pieces() -> void:
 	for coords in grid_map.keys():
-		var connections = _connections_at(coords)
-		var scene = _pick_scene(connections)
-		var piece = scene.instantiate()
+		var connections := _connections_at(coords)
+		var scene := _pick_scene(connections)
+		var piece := scene.instantiate()
 		add_child(piece)
 		piece.global_position = coords * cell_size
 		grid_map[coords] = piece
@@ -148,76 +174,7 @@ func _spawn_pieces() -> void:
 		elif scene == vertical_corridor_scene:     grid_type[coords] = "v_corridor"
 		else:                                      grid_type[coords] = "cross"
 
-# ── Pathfinding ───────────────────────────────────────────────────────────────
-
-func _find_exit(start: Vector2) -> Vector2:
-	var queue = [start]
-	var dist: Dictionary = {start: 0}
-	var farthest = start
-	while queue.size() > 0:
-		var current: Vector2 = queue.pop_front()
-		for dir_name in DIRECTIONS:
-			var nb = current + DIRECTIONS[dir_name]
-			if grid_map.has(nb) and not dist.has(nb):
-				dist[nb] = dist[current] + 1
-				queue.append(nb)
-				if dist[nb] > dist[farthest]:
-					farthest = nb
-	return farthest
-
-func _bfs_path(start: Vector2, end: Vector2) -> Array[Vector2]:
-	var queue: Array = [[start]]
-	var visited: Dictionary = {start: true}
-	while queue.size() > 0:
-		var path: Array = queue.pop_front()
-		var current: Vector2 = path[-1]
-		if current == end:
-			var typed: Array[Vector2] = []
-			for p in path: typed.append(p)
-			return typed
-		for dir_name in DIRECTIONS:
-			var nb = current + DIRECTIONS[dir_name]
-			if grid_map.has(nb) and not visited.has(nb):
-				visited[nb] = true
-				var np = path.duplicate()
-				np.append(nb)
-				queue.append(np)
-	return [start]
-
-func _dir_from_to(from: Vector2, to: Vector2) -> String:
-	var diff = to - from
-	for d in DIRECTIONS:
-		if DIRECTIONS[d] == diff: return d
-	return ""
-
-func _connection_key(a: Vector2, b: Vector2) -> String:
-	if a.x < b.x or (a.x == b.x and a.y < b.y): return str(a) + "|" + str(b)
-	return str(b) + "|" + str(a)
-
-# ── Stage assignment ──────────────────────────────────────────────────────────
-
-# Main path is sliced into 4 equal segments → stages 1‥4.
-# Off-path cells inherit the stage of their closest main-path neighbour (BFS).
-func _assign_stages(main_path: Array[Vector2]) -> void:
-	var n = main_path.size()
-	var seg = float(n) / 4.0
-	for i in range(n):
-		_stage_of[main_path[i]] = min(4, int(float(i) / seg) + 1)
-	_stage_of[main_path[-1]] = 4   # exit cell always stage 4
-
-	var queue: Array = main_path.duplicate()
-	var visited: Dictionary = {}
-	for c in main_path: visited[c] = true
-	while queue.size() > 0:
-		var cur: Vector2 = queue.pop_front()
-		for d in DIRECTIONS:
-			var nb = cur + DIRECTIONS[d]
-			if grid_map.has(nb) and not visited.has(nb):
-				_stage_of[nb] = _stage_of[cur]
-				visited[nb]   = true
-				queue.append(nb)
-
-# ── Sealing helpers ───────────────────────────────────────────────────────────
+# ── Boundary sealing ──────────────────────────────────────────────────────────
 
 func _seal_opening(coords: Vector2, dir_name: String) -> void:
 	var piece = grid_map.get(coords)
@@ -228,140 +185,87 @@ func _seal_opening(coords: Vector2, dir_name: String) -> void:
 	for cell: Vector2i in OPENING_TILES[dir_name]:
 		tm.set_cell(cell, 0, Vector2i(0, 0))
 
-# Seals every cross-stage connection that is NOT the designated lock passage.
-# After this, the ONLY way between two adjacent stages is through one locked door.
-func _seal_inter_stage_walls(main_path: Array[Vector2]) -> void:
-	var locks: Dictionary = {}
-	for i in range(main_path.size() - 1):
-		if _stage_of.get(main_path[i], 0) != _stage_of.get(main_path[i + 1], 0):
-			locks[_connection_key(main_path[i], main_path[i + 1])] = true
-
-	for coords in grid_map.keys():
-		for d in DIRECTIONS:
-			var nb = coords + DIRECTIONS[d]
-			if not grid_map.has(nb): continue
-			if _stage_of.get(coords, 0) == _stage_of.get(nb, 0): continue
-			if locks.has(_connection_key(coords, nb)): continue
-			_seal_opening(coords, d)
-			_seal_opening(nb, OPPOSITE_DIR[d])
-
 func _seal_boundary_openings() -> void:
 	for coords in grid_map.keys():
 		for d in DIRECTIONS:
 			if not grid_map.has(coords + DIRECTIONS[d]):
 				_seal_opening(coords, d)
 
-# ── Doors ─────────────────────────────────────────────────────────────────────
+# ── Stage doors + keys ────────────────────────────────────────────────────────
 
-func _narrow_for_door(from_coords: Vector2, dir_name: String) -> void:
-	for pair in [[from_coords, dir_name],
-				 [from_coords + DIRECTIONS[dir_name], OPPOSITE_DIR[dir_name]]]:
-		var piece = grid_map.get(pair[0])
-		if piece == null: continue
-		var tm: TileMapLayer = piece.get_node_or_null("TileMapLayer")
-		if tm == null: continue
-		for cell: Vector2i in DOOR_OUTER_TILES[pair[1]]:
-			tm.set_cell(cell, 0, Vector2i(0, 0))
+func _spawn_stage_doors() -> void:
+	# Build a per-stage room list so we can place the key chest inside the stage.
+	var rooms_by_stage: Dictionary = {}
+	for coords in grid_map.keys():
+		if grid_type.get(coords, "") != "room": continue
+		var s: int = _stage_of.get(coords, 0)
+		if not rooms_by_stage.has(s):
+			rooms_by_stage[s] = []
+		rooms_by_stage[s].append(coords)
 
-func _place_door(pos: Vector2, direction: String, key: String = "", color: Color = Color.WHITE) -> void:
-	var door = door_scene.instantiate()
-	add_child(door)
-	door.global_position = pos
-	if direction == "East" or direction == "West":
-		door.global_transform = door.global_transform.rotated(deg_to_rad(90.0))
-	door.is_locked    = not key.is_empty()
-	door.required_key = key
-	door.modulate      = color
+	for coords in _stage_transitions:
+		var stage: int = _stage_of.get(coords, 1)
+		var key_name: String = STAGE_KEYS[(stage - 1) % STAGE_KEYS.size()]
 
-# Places one locked door at each stage boundary, with exactly one key hidden
-# somewhere inside that stage's rooms.
-func _place_stage_locks(main_path: Array[Vector2]) -> void:
-	var stage_debug := ""
-	for c in main_path:
-		stage_debug += str(_stage_of.get(c, 0))
-	print("Stages on path (len=%d): %s" % [main_path.size(), stage_debug])
+		# Locked door at the southernmost transition corridor cell.
+		var door := door_scene.instantiate()
+		door.is_locked    = true
+		door.required_key = key_name
+		add_child(door)
+		door.global_position = coords * cell_size
 
-	var lock_idx = 0
-	for i in range(main_path.size() - 1):
-		if lock_idx >= KEY_COLORS.size(): break
-		var from_c = main_path[i]
-		var to_c   = main_path[i + 1]
-		if _stage_of.get(from_c, 0) == _stage_of.get(to_c, 0): continue
-
-		var dir_name = _dir_from_to(from_c, to_c)
-		print("  Transition S%d→S%d at %s dir=%s (piece=%s)" % [
-			_stage_of.get(from_c), _stage_of.get(to_c), from_c, dir_name,
-			grid_type.get(from_c, "?")])
-		if dir_name.is_empty(): continue  # non-adjacent cells, shouldn't happen
-
-		var mpos = grid_map[from_c].get_marker_global_position(dir_name)
-		if mpos == null:
-			mpos = from_c * cell_size + DIRECTIONS[dir_name] * cell_size * 0.5
-			print("    WARNING: marker missing, using fallback pos %s" % mpos)
-
-		var cd = KEY_COLORS[lock_idx]
-		_narrow_for_door(from_c, dir_name)
-		_place_door(mpos, dir_name, cd["key"], cd["color"])
-		print("  Door placed: %s at %s" % [cd["key"], mpos])
-
-		# Exactly one key chest, somewhere inside the FROM stage.
-		var from_stage = _stage_of.get(from_c, 1)
-		var candidates: Array[Vector2] = []
-		for c in grid_map.keys():
-			if _stage_of.get(c, 0) == from_stage and grid_type.get(c, "") == "room":
-				candidates.append(c)
-		if candidates.is_empty(): candidates = [from_c]
-
-		var key_room = candidates[randi() % candidates.size()]
-		_key_rooms.append(key_room)
-		_spawn_supply_box(key_room, cd["key"])
-		lock_idx += 1
-
-	print("Total doors placed: %d" % lock_idx)
+		# Key chest: a supply box with forced_item set before add_child so _ready() picks it up.
+		var stage_rooms: Array = rooms_by_stage.get(stage, [])
+		if stage_rooms.size() > 0:
+			var key_room: Vector2 = stage_rooms[randi() % stage_rooms.size()]
+			_spawn_supply_box(key_room, key_name)
 
 # ── Supply boxes ──────────────────────────────────────────────────────────────
 
 func _spawn_exploration_supply_boxes() -> void:
 	for coords in grid_map.keys():
 		if grid_type.get(coords, "") != "room": continue
-		if coords in _key_rooms: continue
-		if _stage_of.get(coords, 0) == 4: continue  # exit stage needs no loot
-		if randf() < 0.5: _spawn_supply_box(coords)
+		if _stage_of.get(coords, 0) == TOTAL_STAGES: continue
+		if randf() < 0.5:
+			_spawn_supply_box(coords, "")
 
-func _spawn_supply_box(room_coords: Vector2, forced_item: String = "") -> void:
-	var box = supply_box_scene.instantiate()
-	if forced_item != "": box.forced_item = forced_item
+func _spawn_supply_box(room_coords: Vector2, forced: String) -> void:
+	var box := supply_box_scene.instantiate()
+	if forced != "":
+		box.forced_item = forced
 	add_child(box)
 	box.global_position = room_coords * cell_size
 
-# ── Guard Spawning ────────────────────────────────────────────────────────────
+# ── Exit trigger (final room) ─────────────────────────────────────────────────
+
+func _spawn_exit_trigger() -> void:
+	var trigger := Area2D.new()
+	var shape   := CollisionShape2D.new()
+	var rect    := RectangleShape2D.new()
+	rect.size = Vector2(cell_size.x * 0.8, cell_size.y * 0.8)
+	shape.shape = rect
+	trigger.add_child(shape)
+	trigger.body_entered.connect(func(body: Node2D) -> void:
+		if body.name == "Player":
+			print("Você chegou ao final! Jogo encerrado.")
+			get_tree().quit()
+	)
+	add_child(trigger)
+	trigger.global_position = _exit_room_coords * cell_size
+
+# ── Guards ────────────────────────────────────────────────────────────────────
 
 func _spawn_guards(start_coords: Vector2) -> void:
-	print("--- PASSO 4: Injetando Inimigos por Estágio ---")
-	
 	for coords in grid_map.keys():
-		# Nunca coloca o guarda na cara do Batman na sala inicial
-		if coords == start_coords: 
-			continue
-			
-		# Apenas espeta guardas em salas reais (evita travar nos corredores estreitos)
-		if grid_type.get(coords, "") != "room": 
-			continue
-			
-		# 60% de chance de spawnar guarda por sala válida
+		if coords == start_coords: continue
+		if grid_type.get(coords, "") != "room": continue
 		if randf() < 0.6:
-			var guard = guard_scene.instantiate()
+			var guard := guard_scene.instantiate()
 			add_child(guard)
-			
-			# Centraliza o guarda perfeitamente no espaço do quadrado
 			guard.global_position = coords * cell_size
-			
-			# Passa o estágio da sala atual para o script do guarda (se ele aceitar)
-			var room_stage = _stage_of.get(coords, 1)
+			var room_stage: int = _stage_of.get(coords, 1)
 			if guard.has_method("configure_difficulty"):
 				guard.configure_difficulty(room_stage)
-				
-			print("  Guarda criado na sala %s (Estágio %d)" % [coords, room_stage])
 
 # ── Player ────────────────────────────────────────────────────────────────────
 

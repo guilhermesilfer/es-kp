@@ -14,7 +14,6 @@ var target_player: CharacterBody2D = null
 var change_dir_timer: float = 0.0
 
 func _ready() -> void:
-	# Conecta a visão do guarda para rastrear o Batman
 	vision_area.body_entered.connect(_on_vision_area_body_entered)
 	vision_area.body_exited.connect(_on_vision_area_body_exited)
 	_choose_random_direction()
@@ -26,18 +25,21 @@ func _physics_process(delta: float) -> void:
 		State.CHASE:
 			_process_chase()
 
-	# move_and_slide() retorna true se colidir com uma parede do Tilemap
 	var collided = move_and_slide()
 	if collided and current_state == State.PATROL:
 		_choose_random_direction()
 
 	_update_animation()
 
+# --- HITKILL DA PISTOLA DO BATMAN ---
+func take_damage() -> void:
+	print("Guarda atingido pelo tiro único e fatal!")
+	queue_free() # Deleta o guarda do mapa na hora!
+
 # --- PATRULHA CARDINAL (4 DIREÇÕES) ---
 func _process_patrol(delta: float) -> void:
 	velocity = patrol_direction * speed
 	
-	# Tempo para ele decidir mudar de direção sozinho (deixa o padrão mais orgânico)
 	change_dir_timer -= delta
 	if change_dir_timer <= 0:
 		_choose_random_direction()
@@ -45,12 +47,11 @@ func _process_patrol(delta: float) -> void:
 func _choose_random_direction() -> void:
 	var directions = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 	patrol_direction = directions[randi() % directions.size()]
-	change_dir_timer = randf_range(1.0, 3.0) # Anda entre 1 e 3 segundos antes de avaliar virar
+	change_dir_timer = randf_range(1.0, 3.0) 
 
 # --- PERSEGUIÇÃO TOP-DOWN ---
 func _process_chase() -> void:
 	if is_instance_valid(target_player):
-		# Rastreia a posição exata do Batman no plano 2D
 		var dir = (target_player.global_position - global_position).normalized()
 		velocity = dir * chase_speed
 	else:

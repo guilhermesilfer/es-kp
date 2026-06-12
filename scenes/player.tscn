@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://dheegcut70sc7"]
 
 [ext_resource type="Script" uid="uid://bt513yqnowgm1" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Script" uid="uid://oaw3xmy6u7gv" path="res://scripts/gun_muzzle.gd" id="2_g2els"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dqkch"]
 radius = 8.0
@@ -14,3 +15,6 @@ script = ExtResource("1_g2els")
 shape = SubResource("CircleShape2D_dqkch")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=209088685]
+
+[node name="GunMuzzle" type="Marker2D" parent="." unique_id=285918100]
+script = ExtResource("2_g2els")

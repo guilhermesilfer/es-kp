@@ -1,8 +1,9 @@
-res://scenes/vertical_straight_corridor.tscn
-res://scripts/map_generator.gd
-res://scripts/supply_box.gd
-res://scripts/player.gd
-res://scripts/door.gd
 res://scenes/world_test.tscn
-res://scenes/guard.tscn
+res://scripts/map_generator.gd
+res://scenes/player.tscn
+res://scripts/gun_muzzle.gd
+res://scenes/bullet.tscn
+res://scripts/bullet.gd
 res://scripts/guard.gd
+res://scripts/player.gd
+res://scenes/guard.tscn
